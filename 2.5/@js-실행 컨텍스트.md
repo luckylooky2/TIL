@@ -16,7 +16,7 @@ Execution Context
 	├── VariableEnvironment(snapshot)
 	│		├── environmentRecord
 	│		└── outerEnvironmentReference
-	├── outerEnvironmentReference
+	├── LexicalEnvironment
 	│		├── environmentRecord
 	│		└── outerEnvironmentReference
 	└── ThisBinding
@@ -50,7 +50,9 @@ Execution Context
 - GC 과정에서 참조 카운트가 남아있기 때문에 실행 컨텍스트가 수거되지 않는 현상이다
 - 예를 들어, 클로저가 리턴하는 함수를 실행하는 것은 클로저로 인해 외부 함수의 실행 컨텍스트가 남아있고, 해당 실행 컨텍스트의 `environmentRecord`에 클로저가 리턴하는 함수(식별자)가 존재하기 때문에 실행할 수 있는 것이다
 
-### 호이스팅 코드
+### 호이스팅 예제
+- 호이스팅은 선언과 초기화가 분리되어 발생한다. 이 때문에 변수가 끌어올려진 것과 같은 효과가 발생하는 것이다
+- 선언은 실행 컨텍스트가 생성될 때, 초기화는 코드가 실행될 때 발생한다
 
 ```js
 (function () {

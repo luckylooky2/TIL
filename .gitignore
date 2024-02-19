@@ -1,3 +1,4 @@
 **/a.out
 **/*.o
 .obsidian
+.DS_Store

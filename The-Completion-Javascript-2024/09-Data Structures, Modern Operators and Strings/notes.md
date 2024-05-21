@@ -861,7 +861,7 @@ undefined?.a; // undefined
 	2. 접근하려는 프로퍼티 앞의 평가된 값이 nullish라면 `undefined`로 평가하고 진행을 멈추는 연산자 `?.`
 	3. nullish가 아니라면, 계속 평가를 진행하여 해당 값을 반환
 
-### Sets
+### `Set`
 
 ```js
 // Set의 인자는 "Iterable"(Array, String ...)
@@ -929,7 +929,9 @@ const staffUniqueArr = [...new Set(staff)];
 console.log(staffUniqueArr.length); // 3
 console.log(new Set(staff).size); // 3
 ```
-### Maps
+### `Map`
+
+- `Map` : `key`에 `value`를 mapping 하는 자료 구조
 
 ```js
 const rest = new Map();
@@ -952,9 +954,7 @@ console.log(
 	.set(false, "We are closed :(")
 ); // Map(3) {'name' => 'Classico Italiano', 1 => 'Firenze, Italy', 2 => 'Lisbon, Portugal'}
 ```
-- `Map`
-	- `key`에 `value`를 mapping 하는 자료 구조
-- `Map` vs. `Object`
+- *1) `Map`과 `Object`의 차이점 : `key`의 데이터 타입*
 	- `Object`는 `key`로 "문자열"만 설정할 수 있다
 	- `Map`은 `key`로 "모든 데이터 타입"을 설정할 수 있다
 		- etc. `Object`, `Array`, 다른 `Map`...
@@ -977,7 +977,7 @@ console.log(rest2.get(isValidTime)); // We are closed :(
 ```js
 // hasOwnProprty
 console.log(rest2.has("categories")); // true
-// 삭제는 굉장히 느리기 때문에 권장하지 않음
+// 삭제 메서드는 굉장히 느리기 때문에 권장하지 않음
 rest2.delete(2);
 console.log(rest2.size); // 7
 rest2.clear();
@@ -992,3 +992,107 @@ rest2.set(arr, "Test2");
 console.log(rest2.get([1, 2])); // undefined
 console.log(rest2.get(arr)); // Test2
 ```
+
+```js
+// Initialization
+const question = new Map([
+	['question', 'What is the best programming language in the world?'],
+	[1, 'C'],
+	[2, 'Java'],
+	[3, 'Javascript'],
+	['correct', 3],
+	[true, 'Correct'],
+	[false, 'Try again']
+]);
+
+// convert Object to Map
+const openingDay = {
+	'thu': true,
+	'fri': true,
+	'sat': false
+}
+const openingDayMap = new Map(Object.entries(openingDay));
+```
+- `Set`과 비슷하게 `[key, value]`를 요소로 하는 2차원 배열을 인자로 넘김으로써 `Map`을 생성하면서 초기화할 수 있다
+- 인자로 넘기는 2차원 배열은 `Object.entries()` 메서드를 통해 얻을 수도 있다
+	- 편하게 `Object`에서 `Map`으로 변환할 수 있다
+
+```js
+// convert Object to Map
+const openingDay = {
+  thu: true,
+  fri: true,
+  sat: false,
+};
+const openingDayMap = new Map(Object.entries(openingDay));
+
+for (const [key, value] of question) {
+  console.log(key, value); // 1 'C', 2 'Java', ...
+}
+
+for (const [key, value] of openingDay) {
+  console.log(key, value); // TypeError: openingDay is not iterable
+}
+
+for (const elem in openingDay) {
+  console.log(elem); // thu, fri, sat
+}
+
+// convert map to array
+console.log([...question]);
+console.log(question.entries()); // MapIterator
+console.log(question.keys()); // MapIterator
+console.log(question.values()); // MapIterator
+console.log([...question.entries()]); // same as [...question]
+
+// object is not iterable, map is iterable
+console.log([...openingDay]); // TypeError: openingDay is not iterable
+console.log({ ...openingDay }); // {thu: true, fri: true, sat: false}
+```
+- *2) `Map`과 `Object`의 또 다른 차이점 : Iterable*
+	- `Map`
+		- iterable
+		- `for ... of`, `...` 연산자 사용 가능
+	- `Object`
+		- NOT iterable
+		- `for ... of`, `...` 연산자 사용하지 못함
+
+###  Summary: Which Data Structure to Use?
+
+- 1) Sources of Data
+	1. From the program itself
+		- 소스 코드에 적힌 데이터(e.g. status messages)
+	2. From the UI
+		- 사용자 입력 혹은 DOM에 상의 데이터(e.g. tasks in to-do app)
+	3. From external sources
+		- Web API로부터 불러온 데이터(e.g. JSON)
+- 2) Collect Data
+- 3) Determine Data Structure
+	- BUILT-IN
+		- Simple List?
+			- `Array` or `Set` or `WeakSet`
+		- Key/Value Pair?
+			- key(개체)와 values(개체에 대한 설명)이 필요할 때
+			- `Object` of `Map` or `WeakMap`
+	- NOT BUILT-IN
+		- Stack, Queue, Linked List, Tree, Hash Table ...
+
+- `Array` vs. `Set` : 개체에 대한 설명이 필요하지 않을 때 사용
+	- `Array`
+		- 순서가 중요할 때
+		- 중복 값이 필요할 때
+			- 중복 값의 순서가 중요하지 않을 때는 Key/Value Pair를 사용해서 나타낼 수도 있음
+			- e.g. `['red', 'blue', red']` vs. `{red: 2, blue: 1}`
+	- `Set`
+		- 고유한 값만 필요할 때
+		- 고성능 작업이 필요할 때 : 삽입 삭제가 평균 10배 빠름
+- `Object` vs. `Map` : 개체에 대한 설명이 필요할 때 사용
+	- `Object`
+		- `Map`보다 간단하게 사용할 수 있음 : Object literal, 접근(`.` and `[]`)
+		- key 데이터 타입이 `String`으로 충분할 때
+		- 프로퍼티로서 함수(메서드)가 필요할 때
+		- JSON을 처리해야 할 때
+	- `Map`
+		- 고성능 작업이 필요할 때
+		- key 데이터 타입이 여러 가지일 때
+		- 단순히 key와 value를 매핑하는 자료 구조가 필요할 때

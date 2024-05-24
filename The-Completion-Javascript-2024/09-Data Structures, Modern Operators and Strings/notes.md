@@ -1096,3 +1096,198 @@ console.log({ ...openingDay }); // {thu: true, fri: true, sat: false}
 		- 고성능 작업이 필요할 때
 		- key 데이터 타입이 여러 가지일 때
 		- 단순히 key와 value를 매핑하는 자료 구조가 필요할 때
+
+### `String`
+
+```js
+const airline = 'TAP Air Portugal';
+const plane = 'A320';
+
+console.log(plane[0], plane[1], plane[2], 'B737'[0]); // A 3 2 B
+
+console.log(airline.length, 'B737'.length); // 16 4
+```
+
+#### `indexOf`, `lastIndexOf`, `slice`
+
+```js
+// zero-based index
+console.log(airline.indexOf('r')); // 6
+console.log(airline.lastIndexOf('r')); // 10
+// cannot find
+console.log(airline.indexOf('portugal')); // -1
+
+// slice
+// 1. (no arguments)
+console.log(airline.slice()); // TAP Air Portugal
+// 2. (startIndex)
+console.log(airline.slice(4)); // Air Portugal
+// 3. (startIndex, endIndex)
+console.log(arline.slice(4, 7)); // Air
+
+console.log(airline.slice(-2)); // al
+console.log(airline.slice(1, -1)); // AP Air Portuga
+
+const checkMiddleSeat = function(seat) {
+	const s = seat.slice(-1);
+	console.log(s === 'B' || s === 'E' ? 'You got the middle seat' : 'You got lucky');
+}
+
+checkMiddleSeat('11B'); // You got the middle seat
+checkMiddleSeat('23C'); // You got lucky
+checkMiddleSeat('3E'); // You got the middle seat
+```
+- `slice` 메서는 원본 문자열을 변경하지 않는다
+	- `String` 은 primitive 이기 때문에 바꾸는 것이 불가능하다
+- 음수 인덱싱도 가능하다
+	- 마지막 글자 추출 : `string.slice(-1)`
+
+```js
+console.log(new String('jonas')); // String {"jonas"}
+console.log(typeof new String('jonas')); // object
+
+console.log(typeof new String('jonas').slice(1)); // string
+```
+- `String` 타입은 primitive 인데 어떻게 `Object`처럼 메서드를 사용할 수 있나?
+	- `String`의 메서드(e.g. `slice`)를 호출할 때마다, 내부적으로 `String`을 `String Object`로 변환한다
+		- => Boxing
+	- 메서드는 해당 `String Object`의 프로토타입에 선언되어 있다
+- `String`의 메서드 결과는 primitive 문자열
+	- 체이닝을 이용한 `String`의 연속적인 처리가 가능하다
+
+#### `toLowerCase`, `toUpperCase`, `trim`
+
+```js
+const passenger = 'jOnAs';
+const passengerLower = passenger.toLowerCase();
+const passengerCorrect = passengerLower[0].toUpperCase() + passengerLower.slice(1);
+
+console.log(passengerCorrect); // Jonas
+
+const email = 'hello@jonas.io';
+const loginEmail = '  Hello@Jonas.Io \n';
+const normalizedEmail = loginEmail.toLowerCase().trim();
+
+console.log(email === normalizedEmail); // true
+```
+- ES2019 : `trimStart`, `trimEnd`
+- `trim` :  모든 공백 문자 + 개행 문자
+
+#### `replace`, `replaceAll`
+
+```js
+const priceGB = '288,97£';
+const priceUS = priceGB.replace('£', '$').replace(',', '.');
+
+console.log(priceUS); // 288.97$
+
+const announcement = 'All passengers door 23. Boarding door 23!';
+
+console.log(announcement.replace('door', 'gate')); // All passengers gate 23. Boarding door 23!
+console.log(announcement.replaceAll('door', 'gate')); // All passengers gate 23. Boarding gate 23!
+console.log(announcement.replace(/door/g, 'gate')); // All passengers gate 23. Boarding gate 23!
+```
+- `replace` 메서드는 처음 발견하는 문자열만 교체한다
+	- ES2021 : `replaceAll`
+
+#### `includes`, `startsWith`, `endsWith`
+
+```js
+const plane = 'Airbus A320neo';
+
+console.log(plane.includes('A320')); // true
+console.log(plane.includes('Boeing')); // false
+console.log(plane.startsWith('Airb')); // true
+console.log(plane.startsWith('irb')); // false
+
+if (plane.startsWith('Airbus') && plane.endsWith('neo')) {
+	console.log(Part of the NEW Airbus family);
+}
+```
+- 조건에 따라 `boolean`을 반환하는 메서드
+
+#### `split`, `join`
+
+```js
+console.log('Jonas Schmedtmann'.split(' ')); // ["Jonas", "Schmedtmann"]
+
+const [firstName, lastName] = 'Jonas Schmedtmann'.split(' ');
+const newName = ['Mr', firstName, lastName.toUpperCase()].join(" "); 
+
+console.log(newName); // Mr. Jonas SCHMEDTMANN
+
+const capitalizeName = function (name) {
+	const names = name.split(" ");
+	const namesUpper = [];
+	for (const n of names) {
+		namesUpper.push(n.replace(n[0], n[0].toUpperCase()));
+	}
+	console.log(namesUpper.join(" "));
+}
+
+capitalizeName("jessica ann smith davis"); // Jessica Ann Smith Davis
+```
+
+#### `padStart`, `padEnd`
+
+```js
+const message = 'Go to gate 23!';
+
+console.log(message.padStart(25, '+')); // +++++++++++Go to gate 23!
+console.log('Jonas'.padStart(25, '+')); // ++++++++++++++++++++Jonas
+
+console.log(message.padStart(25, '+').padEnd(30, '+')); // +++++++++++Go to gate 23!+++++
+console.log('Jonas'.padStart(25, '+').padEnd(30, '+')); // ++++++++++++++++++++Jonas+++++
+
+const maskCreditCard = function (number) {
+	// make string
+	const str = number + '';
+	const last = str.slice(-4);
+	return last.padStart(str.length, '*');
+	
+}
+
+console.log(maskCreditCard(263182639812521)); // ***********2521
+console.log(maskCreditCard("125122639812521")); // ***********2521
+```
+
+#### `repeat`
+
+```js
+const message2 = 'Bad Weather... All Departures Delayed...';
+
+console.log(message2.repeat(3)); // Bad Weather... All Departures Delayed...Bad Weather... All Departures Delayed...Bad Weather... All Departures Delayed...
+
+const planesInLine = function(n) {
+	console.log(`There are ${n} planes in line ${'🛩️'.repeat(n)}`)
+}
+
+planesInLine(5); // There are 5 planes in line 🛩️🛩️🛩️🛩️🛩️
+planesInLine(3); // There are 3 planes in line 🛩️🛩️🛩️
+planesInLine(10); // There are 10 planes in line 🛩️🛩️🛩️🛩️🛩️🛩️🛩️🛩️🛩️🛩️
+```
+- 반복된 문자열을 새로 생성
+
+#### practice
+
+```js
+const flights = '_Delayed_Departure;fao93766109;txl2133758440;11:25+_Arrival;bru0943384722;fao93766109;11:45+_Delayed_Arrival;hel7439299980;fao93766109;12:05+_Departure;fao93766109;lis2323639855;12:30';
+
+for (const elem of flights.split("+")) {
+    const [title, from, to, time] = elem.split(";");
+    const splittedTitle = title.split("_");
+    if (splittedTitle[1] === 'Delayed') {
+        splittedTitle[0] = "🔴";
+    }
+    const [hour, min] = time.split(":");
+    console.log(`${splittedTitle.join(" ").padStart(20)} from ${from.slice(0, 3).toUpperCase()} to ${to.slice(0, 3).toUpperCase()} (${hour}h${min})`)
+}
+
+// 🔴 Delayed Departure from FAO to TXL (11h25)
+//              Arrival from BRU to FAO (11h45)
+//   🔴 Delayed Arrival from HEL to FAO (12h05)
+//            Departure from FAO to LIS (12h30)
+```
+- 중복 코드 함수화 : `getCode`
+- 중간의 문자를 바꿀 때에는 `replace(All)` 메서드를 이용
+- `padStart`의 위치

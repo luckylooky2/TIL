@@ -69,3 +69,120 @@ console.log(flight, jonas); // LH234 {name: 'Mr. Jonas schmedtmann', passport: 2
 	- 하지만 내부적으로 "primitive"과 "reference" 데이터 타입의 동작 방식이 다르다
 		- primitive : 값 자체를 복사하기 때문에 원본 변수에 영향이 없다
 		- reference : 참조(메모리 주소)를 복사하기 때문에 원본 변수에 영향을 미친다
+- https://stackoverflow.com/questions/518000/is-javascript-a-pass-by-reference-or-pass-by-value-language
+
+```js
+function changeObject(x) {
+  x = { member: "bar" };
+  console.log("in changeObject: " + x.member);
+}
+
+function changeMember(x) {
+  x.member = "bar";
+  console.log("in changeMember: " + x.member);
+}
+
+let x = { member: "foo" };
+
+console.log("before changeObject: " + x.member);
+changeObject(x);
+console.log("after changeObject: " + x.member); /* change did not persist */
+
+console.log("before changeMember: " + x.member);
+changeMember(x);
+console.log("after changeMember: " + x.member); /* change persists */
+```
+- 두 함수 모두 reference로서가 아니라 value로서 전달하기 때문에, 첫 번째 함수 이후 `x`의 값이 변하지 않았다
+- reference로서 전달했다면, `x`의 값이 첫 번째 함수 내부에서 변경되어야 했을 것이다
+
+### First Class Functions, Higher Order Functions
+
+- 일급 함수(First Class Functions)와 고차 함수(Higher Order Functions)의 관계?
+	- *일급 함수가 있기 때문에 고차 함수를 만들고, 사용(write, use)할 수 있다*
+- 비교
+	- 일급 함수 : 언어적 특징, practice가 아니라 concept
+	- 고차 함수 : 일급 함수의 practice
+
+```js
+const add = (a, b) => a + b;
+const counter = {
+	value: 23,
+	inc: function () {
+		this.value++;
+	}
+}
+
+const greet = () => console.log('Hey Jonas');
+btnClose.addEventListener('click', greet);
+
+counter.inc.bind();
+```
+- 일급 함수
+	- 자바스크립트에서 함수는 또 다른 `Object` 타입이다
+	- `Object`는 값이기 때문에, 함수 또한 값이다
+	- 그렇기 때문에, ***1) 변수에 저장하거나, 2) Object 프로퍼티로 값으로 저장할 수 있다***
+	- 또한 ***3) 함수에 인자로 넘겨줄 수 있다***
+	- ***4) 함수에서 함수를 반환할 수 있다***
+	- ***5) 함수 내부에 프로퍼티와 메서드를 가질 수 있다(Object 이기 때문에) : `name` 프로퍼티***
+
+```js
+const greet = () => console.log('Hey Jonas');
+btnClose.addEventListener('click', greet);
+
+// higher order function : addEventListener
+// callback function : greet
+
+function count() {
+	let counter = 0;
+	return function () {
+		counter++;
+	}
+}
+
+// higher order function : count
+// returned function : function() { counter++; }
+```
+- 고차 함수
+	- *함수를 인자로 받는 함수 또는 함수를 반환하는 함수*
+	- 일급 함수이기 때문에 가능한 개념이다
+
+```js
+// 고차 함수
+// 1) 함수를 인자(콜백 함수)로 받는 함수
+const oneWord = function (str) {
+	return str.replace(/ /g, '').toLowerCase();
+};
+
+const upperFirstWord = function (str) {
+	const [first, ...others] = str.split(' ');
+	return [first.toUpperCase(), ...others].join(' ');
+};
+
+// higher order function
+const transformer = function (str, fn) {
+	console.log(`Original string: ${str}`);
+	console.log(`Transformed string: ${fn(str)}`);
+
+	console.log(`Transformed by: ${fn.name}`);
+}
+
+transformer('JavaScript is the best!', upperFirstWord);
+transformer('JavaScript is the best!', oneWord);
+
+const high5 = function () {
+	console.log('👋');
+}
+
+[1, 2, 3].forEach(high5);
+```
+- 콜백 함수로 전달하는 것(고차 함수)은 자바스크립트에서 매우 일상적인 패턴이다
+- 장점? (객체 지향적 설계가 가능)
+	- 1) 코드를 분리하고 쉽고, 재사용하기 좋음
+	- 2) 추상화를 가능하게 함
+		- 추상화 : 자세한 코드 구현 사항을 나타내지 않고 숨기는 방식
+		- 즉, 고차 함수는 구체적인 로직에는 관심이 없음(저차 함수에 구현을 위임)
+		- 문제를 조금 더 높은 단계, 추상적인 단계에서 생각할 수 있게 함
+
+```js
+// 2) 함수를 반환하는 함수
+```

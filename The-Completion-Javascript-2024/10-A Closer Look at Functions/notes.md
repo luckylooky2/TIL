@@ -509,3 +509,102 @@ console.log(a); // 0
 - 이렇게도 처리가 가능하다
 - `import`, `export` 등 `ES Module`을 사용하기 위해서는 해당 파일도 반드시 `type="module"` 속성을 추가해야 한다
 - `import` path에는 `.js`도 반드시 붙여야 하는 등 정확한 경로를 입력해야 한다
+
+### Closure
+
+```js
+// 함수를 반환하는 고차 함수
+// - 내부 스코프 변수에 고차 함수가 접근을 함으로써 값(실행 컨텍스트, 클로저)이 유지
+const secureBooking = function() {
+	let passengerCount = 0;
+	
+	return function() {
+		passengerCount++;
+		console.log(`${passengerCount} passengers`);
+	}
+}
+
+const booker = secureBooking();
+
+// secureBooking 함수는 이미 실행 컨텍스트에서 사라졌기 때문에, 내부 변수 passengerCount에 접근할 수 없는 것 아닌가?
+// - 클로저는 이전에 존재했던 실행 컨텍스트에 접근할 수 있다
+// - 단지 스코프 체인 만으로는 설명이 힘들다
+booker(); // 1 passengers;
+booker(); // 2 passengers;
+booker(); // 3 passengers;
+```
+- 클로저는 콜 스택, 스코프 체인을 마법과 같은 방법으로 한데 모으는 개념이라고 할 수 있다
+- 클로저는 프로그래머가 명시적으로 사용하는 것은 아니다
+	- 유형의 자바스크립트 객체가 아니다
+	- 특정 상황에서 자동적으로 적용이 된다
+	- 해당 상황에 클로저가 적용이 된 것인지를 알면 된다
+- ***Any function always has access to the variableEnvironment of the Excution Context in which the function was created.***
+	- Even after that Exection Context is gone.
+![sc2](./img/closure.png)
+![sc2](./img/closure2.png)
+- 위 예제에서
+	- `booker()` 스코프(현재 및 전역 실행 컨텍스트)에는 `passengerCount`라는 변수가 존재하지 않는다
+	- `passengerCount`는 이미 실행 컨텍스트에서 `pop` 된 `secureBooking()` 내부 스코프에 존재한다
+	- 따라서 스코프 체인을 이용하여 `passengerCount`를 찾는 것은 불가능하다
+	- 클로저라는 또 다른 방법으로, 접근할 수 없는 스코프에 접근이 가능하다
+		- 콜 스택에서 이미 `pop` 된 실행 컨텍스트
+		- 같은 실행 컨텍스트 내의 서로 다른 블록 등...
+- *현재 콜 스택에 있는 실행 컨텍스트에서 이어진 스코프 체인이 아니라, 클로저라는 별도의 방법으로 해당 스코프에 제한적으로 접근하게 할 수 있다*
+- 클로저란?
+	- 해당 실행 컨텍스트가 사라진 후에도 함수가 생성되었던 실행 컨텍스트와 둘러싼 렉시컬 스코프에 접근할 수 있는 방법을 말한다
+	- 특정 함수가 반환되어도, 여전히 특정 함수의 변수에 접근할 수 있다
+- 클로저가 존재하는 `함수`를 `console.dir()` 로 출력하는 경우, `[[Scopes]]` 내부 슬롯에서 클로저를 확인할 수 있다
+
+```js
+let f;
+
+const g = function() {
+	const a = 23;
+	f = function() {
+		console.log(a + 2);
+	}
+}
+
+g();
+f(); // 25
+```
+- 클로저를 생성하기 위해 함수를 반환할 필요는 없다
+	- 방법의 차이
+
+```js
+let f;
+
+{
+	const a = 23;
+	f = function() {
+		console.log(a + 2);
+	}
+}
+
+f(); // 25
+```
+- ES6에서 추가된 블록 스코프를 이용하면 실행 컨텍스트를 이용하지 않고도 클로저를 만들 수 있다
+
+```js
+const boardPassengers = function (n, wait) {
+	const perGroup = n / 3;
+
+	// 콜백 함수가 boardPassengers의 렉시컬 스코프(클로저)에 접근하여 값을 기억할 수 있다
+	setTimeout(function() {
+		console.log(`We are now boarding all ${n} passengers`);
+		console.log(`There are 3 groups, each with ${perGroup} passengers`);
+	}, wait * 1000)
+
+	console.log(`Will start boarding in ${wait} seconds`);
+}
+
+const perGroup = 1000;
+boardPassengers(100, 3);
+// Will start boarding in 3 seconds
+// We are now boarding all 100 passengers
+// There are 3 groups, each with 33.333333333333336 passengers
+```
+- 클로저는 스코프 체인보다 우선순위가 높다
+	- 둘 다 존재할 때, 클로저 변수 값을 먼저 참조한다
+- 만약 `perGroup`이 `boardPassengers()` 내부에 있지 않다면(e.g. 전역에만 존재한다면), 클로저는 생성되지 않는다
+	- 클로저가 아닌 스코프 체인을 따라 변수를 검색하게 된다

@@ -230,6 +230,105 @@ currenciesSet.forEach(function(value, _, map) {
 	- 내부 자료를 순회할 수 있게 해준다
 - 다만, 첫 번째 인자와 두 번째 인자가 의미하는 것이 다르기 때문에 확인하고 사용하자
 
+### `map` 메서드
+
+```js
+const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+const EURtoUSD = 1.1;
+
+const movementsUSD = movements.map(mov => mov * EURtoUSD);
+console.log(movements); // [200, 450, -400, 3000, -650, -130, 70, 1300]
+console.log(movementsUSD); // [220.00000000000003, 495.00000000000006, -440.00000000000006, 3300.0000000000005, -715.0000000000001, -143, 77, 1430.0000000000002]
+
+const constants = movements.map(mov => 23);
+console.log(constants); // [23, 23, 23, 23, 23, 23, 23, 23]
+```
+- `filter`, `reduce` 메서드와 함께 모던 자바스크립트에서 많이 사용되는 메서드
+	- 세 가지 메서드 **모두 1) 기존 배열을 순회하며 2) 특정 로직을 수행한 후 3) 결과를 리턴한다**
+	- 원본 배열에 영향을 미치지 않는다
+- vs. `for ... of`
+	- 공통점 : 반복문
+	- 차이점
+		- `for ... of`
+			- `명령형 프로그래밍` 접근 방식
+			- 다양한 작업을 수행할 수 있는 유연함이 있음(순회)
+			- 제어 흐름(`break`, `continue`) 제공
+		- `map`
+			- `함수형 프로그래밍` 접근 방식
+			- 배열의 각 요소를 변환하여 새로운 배열을 생성하는데 중점을 둠(변환)
+			- 제어 흐름(`break`, `continue`) 제공하지 않음
+- vs. `forEach`
+	- 공통점
+		- 각 요소에 대해 제공된 콜백 함수를 호출하는 반복문
+	- 차이점
+		- `forEach`
+			- 단순히 콜백 함수를 실행한 후 종료한다(새 배열을 반환하지 않는다)
+				- 배열 체이닝이 불가능하다
+			- *Side Effect를 수행*할 때 사용된다
+				- e.g. 요소 출력, 배열 외부의 값 수정
+		- `map`
+			- 콜백 함수를 실행한 결과를 새 배열에 담아 반환한다
+				- 배열 체이닝이 가능
+			- *Side Effect가 발생하지 않는 상황*에서 사용한다
+				- 함수형 프로그래밍의 기초
+				- *Side Effect*가 발생하도록 작성할 수 있지만, 지양하는 것이 좋음
+				- 외부 변수를 스코프 체인을 통해 접근하지 않고, 인자를 통해 함수로 전달한다
+```js
+const account1 = {
+  owner: 'Jonas Schmedtmann',
+  movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
+  interestRate: 1.2, // %
+  pin: 1111,
+};
+
+const account2 = {
+  owner: 'Jessica Davis',
+  movements: [5000, 3400, -150, -790, -3210, -1000, 8500, -30],
+  interestRate: 1.5,
+  pin: 2222,
+};
+
+const account3 = {
+  owner: 'Steven Thomas Williams',
+  movements: [200, -200, 340, -300, -20, 50, 400, -460],
+  interestRate: 0.7,
+  pin: 3333,
+};
+
+const account4 = {
+  owner: 'Sarah Smith',
+  movements: [430, 1000, 700, 50, 90],
+  interestRate: 1,
+  pin: 4444,
+};
+
+const accounts = [account1, account2, account3, account4];
+
+const createUsernames = function (accounts) {
+	// 객체를 복사하여 변경한 후 반환하는 것이 아니기 때문에 Side Effect가 존재한다
+	// forEach 사용
+	accounts.forEach(function (account) {
+		account.username = account.owner
+			.toLowerCase()
+			.split(' ')
+			// full name을 인자로 받아 abbreviation을 반환하고 다른 외부 컨텍스트 변수에 접근하지 않기 때문에 Side Effect가 존재하지 않음
+			// map 사용
+			.map(name => name[0])
+			.join('');
+	});
+}
+
+createUsernames(accounts);
+console.log(accounts.map(account => account.username)); // ['js', 'jd', 'stw', 'ss']
+```
+- 사용 예시
+	- `for ... of` : 반복문 중간에 제어 흐름이 필요할 때
+	- `forEach` : *Side Effect*가 발생하는 경우
+	- `map` : *Side Effect*가 발생하지 않는 경우
+- *Side Effect*란?
+	- https://www.educative.io/answers/what-is-a-side-effect
+	- https://dev.to/richytong/practical-functional-programming-in-javascript-side-effects-and-purity-1838
+
 ### Project : Bankist App
 
 #### CSS와 보안
@@ -294,3 +393,5 @@ account.insertAdjacentHTML('beforeend', html);
 	- 편하게 위치를 지정할 수 있다
 	- 선언적, 직관적이다
 - https://developer.mozilla.org/ko/docs/Web/API/Element/insertAdjacentHTML
+
+#### 

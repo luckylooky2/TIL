@@ -243,9 +243,14 @@ console.log(movementsUSD); // [220.00000000000003, 495.00000000000006, -440.0000
 const constants = movements.map(mov => 23);
 console.log(constants); // [23, 23, 23, 23, 23, 23, 23, 23]
 ```
+- 배열을 순회하며 모든 요소에 콜백 함수를 적용한 결과를 새로운 배열로 반환하는 `Array` 메서드
 - `filter`, `reduce` 메서드와 함께 모던 자바스크립트에서 많이 사용되는 메서드
-	- 세 가지 메서드 **모두 1) 기존 배열을 순회하며 2) 특정 로직을 수행한 후 3) 결과를 리턴한다**
+	- 세 가지 메서드 **모두 1) 기존 배열을 순회하며 2) 특정 로직(콜백 함수를 적용)을 수행한 후 3) 결과를 리턴한다**
 	- 원본 배열에 영향을 미치지 않는다
+- 콜백 함수 인자
+	- 첫 번째 인자 : `value`
+	- 두 번째 인자 : `index`
+	- 세 번째 인자 : `arr`
 - vs. `for ... of`
 	- 공통점 : 반복문
 	- 차이점
@@ -328,6 +333,109 @@ console.log(accounts.map(account => account.username)); // ['js', 'jd', 'stw', 
 - *Side Effect*란?
 	- https://www.educative.io/answers/what-is-a-side-effect
 	- https://dev.to/richytong/practical-functional-programming-in-javascript-side-effects-and-purity-1838
+
+### `filter` 메서드
+
+```js
+const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+
+const deposit = movements.filter(function (mov) {
+	return mov > 0;
+})
+const withdrawal = movements.filter(mov => mov < 0);
+
+console.log(deposit); // [200, 450, 3000, 70, 1300]
+console.log(withrawal); // [-400, -650, -130]
+```
+- 배열을 순회하며 모든 요소에 대해 콜백 함수를 적용한 결과가 `true` 인 요소만 새로운 배열로 반환하는 `Array` 메서드
+- *cf> 콜백 함수는 반드시 `boolean` 값을 반환해야 함*
+- 콜백 함수 인자
+	- 첫 번째 인자 : `value`
+	- 두 번째 인자 : `index`
+	- 세 번째 인자 : `arr` (잘 사용하지 않음)
+
+### `reduce` 메서드
+
+```js
+const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+
+const balance = movements.reduce(function (acc, curr, i, arr) {
+	return acc + curr;
+}, 0)
+
+console.log(balance); // 3840
+
+// 반드시 합계일 필요는 없음
+const max = movements.reduce((acc, curr) => Math.max(acc, curr));
+
+console.log(max); // 3000
+```
+- 배열을 순회하며 모든 요소에 대해 콜백 함수를 적용한 최종 결과만을 반환하는 `Array` 메서드
+	- `reduce`의 의미대로 배열을 줄인다는 의미
+
+```js
+const numbers = [1, 2, 3, 4, 5];
+const log = [];
+const log2 = [];
+const log3 = [];
+
+// 초기값 존재
+numbers.reduce((acc, value) => {
+  log.push(acc);
+  return acc + value;
+}, 0);
+
+console.log(log); // [0, 1, 3, 6, 10]
+
+// 초기값 미존재
+numbers.reduce((acc, value) => {
+  log2.push(acc);
+  return acc + value;
+});
+
+console.log(log2); // [1, 3, 6, 10]
+
+// 잘못된 예제 : 예상과 다르게 number[0]이 한 번 더 더해진다
+numbers.reduce((acc, value) => {
+  log3.push(acc);
+  return acc + value;
+}, numbers[0]);
+
+console.log(log3); // [1, 2, 4, 7, 11]
+```
+- `reduce`의 인자
+	- 1) 콜백 함수
+	- 2) `acc`의 초기값(선택)
+		- 초기값이 있으면, 초기값을 처리하는 단계가 추가됨
+		- 다른 말로, 배열의 첫 번째 값이 초기값이 된다고 볼 수 있음
+- 콜백 함수 인자
+	- 첫 번째 인자(추가) : `acc` => 지금까지 누적된 값을 제공하는 인자
+	- 두 번째 인자 : `value`
+	- 세 번째 인자 : `index`
+	- 네 번째 인자 : `arr`
+
+```js
+// (1)
+const numbers = [1, 2, 3, 4, 5];
+const result = numbers.reduce((acc, curr) => [...acc, curr], []);
+
+result.push(100);
+console.log(numbers); // [1, 2, 3, 4, 5]
+console.log(result); // [1, 2, 3, 4, 5, 100]
+
+// (2)
+const ref = [];
+const result2 = numbers.reduce((acc, curr) => [...acc, curr], ref);
+
+result2.push(100);
+console.log(ref); // []
+console.log(result2); // [1, 2, 3, 4, 5, 100]
+```
+- `map`, `filter` 와 다르게 반드시 배열을 반환하는 것이 아니다
+	- 콜백 함수에 따라 어떠한 데이터 타입으로도 반환이 가능하다
+- `map`, `filter`와 마찬가지로 불변성 메서드이다
+	- 초기 값으로 참조형 데이터 타입이 전달되어도 반환되는 값의 참조는 바뀐다
+	- 참조형 데이터 타입 변수로 넘기더라도 반환하는 값은 deep copy가 적용됨
 
 ### Project : Bankist App
 

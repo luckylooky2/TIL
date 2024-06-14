@@ -415,6 +415,31 @@ console.log(log3); // [1, 2, 4, 7, 11]
 	- 네 번째 인자 : `arr`
 
 ```js
+// 평균 구하기
+const log = [];
+
+numbers.reduce((acc, value, i, arr) => {
+  log.push(acc); // [1, 1.4, 2, 2.8]
+  return acc + value / arr.length;
+});
+
+// output : 3.8
+// expected : 3
+
+const log2 = [];
+
+numbers.reduce((acc, value, i, arr) => {
+  log2.push(acc); // [0, 0.2, 0.6, 1.2, 2]
+  return acc + value / arr.length;
+}, 0);
+
+// output : 3
+// expected : 3
+```
+- 배열의 첫 번째 값에도 영향을 주는 결과식일 경우에는 `reduce`의 두 번째 인자로 의미 없는 초기값을 주는 것이 편하다
+	- 초기값이 없는 경우, 배열의 첫 번째 요소가 `acc` 초기값이 되기 때문에 적용이 되지 않는다
+
+```js
 // (1)
 const numbers = [1, 2, 3, 4, 5];
 const result = numbers.reduce((acc, curr) => [...acc, curr], []);
@@ -430,12 +455,107 @@ const result2 = numbers.reduce((acc, curr) => [...acc, curr], ref);
 result2.push(100);
 console.log(ref); // []
 console.log(result2); // [1, 2, 3, 4, 5, 100]
+
+// (3)
+const numbers2 = [[1], [2], [3], [4], [5]];
+const result3 = numbers2.reduce((acc, curr) => [...acc, curr], []);
+console.log(numbers2); // [[1], [2], [3], [4], [5]] 
+console.log(result3); // [[1], [2], [3], [4], [5]]
+result3[0].push(1);
+console.log(numbers2); // [[1, 1], [2], [3], [4], [5]]
 ```
 - `map`, `filter` 와 다르게 반드시 배열을 반환하는 것이 아니다
 	- 콜백 함수에 따라 어떠한 데이터 타입으로도 반환이 가능하다
 - `map`, `filter`와 마찬가지로 불변성 메서드이다
 	- 초기 값으로 참조형 데이터 타입이 전달되어도 반환되는 값의 참조는 바뀐다
-	- 참조형 데이터 타입 변수로 넘기더라도 반환하는 값은 deep copy가 적용됨
+	- 참조형 데이터 타입 변수로 넘기더라도 반환하는 값은 새로운 배열에 담겨 반환된다
+	- (3)을 보면 deep copy는 아닌 것을 알 수 있다
+		- ***단지 현재 배열의 요소를 새로운 배열에 담아 반환한다***
+
+### Method Chaining
+
+```js
+const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
+const EURtoUSD = 1.1;
+
+const totalDepositsUSD = movements
+	.filter(mov => mov > 0)
+	.map((mov, i, arr) => {
+		// 세 번째 인자를 이용하여 이전 메서드의 결과를 파악할 수 있다
+		console.log(arr);
+		return mov * EURtoUSD;
+	})
+	.reduce((acc, mov) => acc + mov, 0);
+
+console.log(totalDepositsUSD); // 5522.000000000001
+```
+- 원본과는 다른 새로운 배열을 반환하는 불변성 메서드(e.g. `map`, `filter`, `reduce`, `concat` 등)를 연속적으로 사용하는 방법
+- 장점
+	- 전통적인 반복문 방법보다 가독성도 좋고, 작성하기도 편하다
+- 단점
+	- 반면, 원하는 결과가 나오지 않았을 때 디버깅이 어렵다는 단점이 있다
+		- 어느 정도 해결이 가능하다
+	- 메서드 체이닝을 너무 많이 사용해서는 안 된다
+		- 기반 배열이 클 경우, 성능 문제가 발생할 수 있다
+		- 최소한으로 메서드 체이닝을 사용할 수 있도록 최적화가 필요하다
+	- 원본 배열을 변형하는 메서드(e.g. `splice`)는 사용을 지양해야 한다
+		- `Side Effect`로 인해 예측이 어려워진다
+
+###  `find` 메서드 (vs. `filter`)
+
+```js
+const account1 = {
+  owner: 'Jonas Schmedtmann',
+  movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
+  interestRate: 1.2, // %
+  pin: 1111,
+};
+
+const account2 = {
+  owner: 'Jessica Davis',
+  movements: [5000, 3400, -150, -790, -3210, -1000, 8500, -30],
+  interestRate: 1.5,
+  pin: 2222,
+};
+
+const account3 = {
+  owner: 'Steven Thomas Williams',
+  movements: [200, -200, 340, -300, -20, 50, 400, -460],
+  interestRate: 0.7,
+  pin: 3333,
+};
+
+const account4 = {
+  owner: 'Sarah Smith',
+  movements: [430, 1000, 700, 50, 90],
+  interestRate: 1,
+  pin: 4444,
+};
+
+const accounts = [account1, account2, account3, account4];
+
+const selectedAccount = accounts.find((account) => account.owner === 'Jessica Davis');
+console.log(selectedAccount); // {owner: 'Jessica Davis', movements: Array(8), interestRate: 1.5, pin: 2222}
+```
+- `find` 또한 콜백 함수를 인자로 받는 메서드이다
+- 콜백 함수는 `filter`처럼 `boolean` 값을 반드시 리턴해야 한다
+- 하지만 `filter`와 다르게
+	- 1) 콜백 함수 결과식에 맞는 첫 번째 요소만 반환한다
+	- 2) 당연히 배열을 반환하지 않는다
+- *배열에서 유일하게 내부 속성(e.g. `id`)이 일치하는 객체를 찾을 때* 사용하면 편하다
+	- `filter`는 배열을 반환하기 때문에 결과에 `array[0]`와 같은 처리가 필요하기 때문이다
+
+```js
+// before
+const currDashboard = dashboardList.filter((v) => v.uid === uid)[0];
+createAction.text === variable.options.filter((v) => v.selected === true)[0]?.text
+
+// after
+const currDashboard = dashboardList.find((v) => v.uid === uid);
+createAction.text === variable.options.find((v) => v.selected === true)?.text
+```
+- `dashboardList`에서 `v.uid === uid`인 요소를 찾는 상황
+- `createAction.text`와 `v.selected === true`인 요소의 text 프로퍼티를 비교하는 상황 
 
 ### Project : Bankist App
 

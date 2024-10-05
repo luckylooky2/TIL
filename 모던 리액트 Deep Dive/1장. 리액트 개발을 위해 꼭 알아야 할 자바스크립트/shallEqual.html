@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script
+      src="https://unpkg.com/react@18/umd/react.development.js"
+      crossorigin
+    ></script>
+    <script
+      src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"
+      crossorigin
+    ></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="text/babel">
+      type Props = {
+        counter: number,
+      };
+
+      const Component = React.memo((props: Props) => {
+        // shallowEqual(prevProps, nextProps); // true
+        React.useEffect(() => {
+          console.log("Component has been rendered!");
+        });
+
+        return <h1>{props.counter}</h1>;
+      });
+
+      type DeeperProps = {
+        counter: { counter: number },
+      };
+
+      const DeeperComponent = React.memo((props: DeeperProps) => {
+        // shallowEqual(prevProps, nextProps); // false
+        React.useEffect(() => {
+          console.log("DeerperComponent has been rendered!");
+        });
+
+        return <h1>{props.counter.counter}</h1>;
+      });
+
+      function App() {
+        const [, setCounter] = React.useState(0);
+
+        function handleClick() {
+          setCounter((prev) => prev + 1);
+        }
+
+        // 메모이제이션을 하면 렌더링을 막을 수 있다.
+        // const deeperProps = React.useMemo(() => ({ counter: 100 }), []);
+        const deeperProps = { counter: 100 };
+
+        return (
+          <div>
+            <Component counter={100} />
+            <DeeperComponent counter={deeperProps} />
+            <button onClick={handleClick}>+</button>
+          </div>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=s, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <ul>
+      <li>동기 코드: <button id="sync">0</button></li>
+      <li>태스크: <button id="macrotask">0</button></li>
+      <li>마이크로 태스크: <button id="microtask">0</button></li>
+    </ul>
+    <button id="macro_micro">모두 동시 실행</button>
+  </body>
+  <script>
+    const button = document.getElementById("run");
+    const sync = document.getElementById("sync");
+    const macrotask = document.getElementById("macrotask");
+    const microtask = document.getElementById("microtask");
+    const macro_micro = document.getElementById("macro_micro");
+
+    // 동기 코드는 렌더링이 발생하지 않는다.
+    sync.addEventListener("click", function () {
+      for (let i = 0; i <= 100000; i++) {
+        sync.innerHTML = i;
+      }
+    });
+
+    // 태스크 큐는 잠깐의 대기 시간(콜 스택 처리)이 지난 후에, 렌더링이 발생한다.
+    macrotask.addEventListener("click", function () {
+      for (let i = 0; i <= 100000; i++) {
+        setTimeout(() => {
+          macrotask.innerHTML = i;
+        }, 0);
+      }
+    });
+
+    // 마이크로태스크 큐를 비운 뒤, 렌더링할 기회를 얻게 된다.
+    // - 마이크로태스크 큐가 비워지지 않으면 렌더링이 지연된다.
+    // - 브라우저에 렌더링하는 작업은 마이크로 태스크 큐와 태스크 큐 사이에서 "반드시" 일어난다.
+    microtask.addEventListener("click", function () {
+      for (let i = 0; i <= 100000; i++) {
+        queueMicrotask(() => {
+          microtask.innerHTML = i;
+        });
+      }
+    });
+
+    macro_micro.addEventListener("click", function () {
+      for (let i = 0; i <= 100000; i++) {
+        sync.innerHTML = i;
+
+        setTimeout(() => {
+          macrotask.innerHTML = i;
+        }, 0);
+
+        queueMicrotask(() => {
+          microtask.innerHTML = i;
+        });
+      }
+    });
+  </script>
+</html>

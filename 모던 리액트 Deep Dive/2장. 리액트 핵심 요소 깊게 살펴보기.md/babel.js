@@ -4,6 +4,8 @@
 // 2. 인자가 절대 혹은 상대 경로일 때
 // - 지정한 경로에서 찾는다
 const Babel = require("/opt/homebrew/lib/node_modules/@babel/standalone");
+const FILE = require("fs").readFileSync(process.argv[2], "utf-8");
+// const SOURCE_CODE = "const ComponentA = <div>안녕하세요.</div>";
 
 Babel.registerPlugin(
   "@babel/plugin-transform-react-jsx",
@@ -24,8 +26,6 @@ const BABEL_CONFIG = {
   ],
 };
 
-const SOURCE_CODE = "const ComponentA = <div>안녕하세요.</div>";
-
-const { code } = Babel.transform(SOURCE_CODE, BABEL_CONFIG);
+const { code } = Babel.transform(FILE, BABEL_CONFIG);
 
 console.log(code);

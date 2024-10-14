@@ -71,7 +71,7 @@ class SampleComponent extends React.Component<SampleProps, SampleState> {
     return true;
   }
 
-  // render를 호출하기 전에 호출된다
+  // render를 호출하기 전에 호출된다.
   // - 반환한 값은 render 함수에서 동기적으로 작동하는 것 같다.
   static getDerivedStateFromProps(nextProps: Props, prevState: State) {
     console.log("getDerivedStateFromProps", nextProps, prevState);

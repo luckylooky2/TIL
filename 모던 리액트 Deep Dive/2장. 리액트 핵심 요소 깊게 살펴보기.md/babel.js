@@ -20,7 +20,7 @@ const BABEL_CONFIG = {
       {
         throwIfNamespace: false,
         runtime: "automatic",
-        importSource: "custom-jsx-library",
+        // importSource: "custom-jsx-library",
       },
     ],
   ],

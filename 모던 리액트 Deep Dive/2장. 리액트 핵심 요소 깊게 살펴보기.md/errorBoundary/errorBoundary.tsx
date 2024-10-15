@@ -49,6 +49,7 @@ class ErrorBoundary extends React.Component<Props, State> {
   }
 }
 
+// 자식 컴포넌트는 함수 컴포넌트이건, 클래스 컴포넌트이건 상관이 없다.
 function Child() {
   const [error, setError] = React.useState(false);
 

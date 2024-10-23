@@ -26,19 +26,3 @@ const App = () => {
     </div>
   );
 };
-
-
-{
-	memoizedState: 0,
-	// ...
-	next: {
-	  memoizedState: false,
-	  // ...
-	  next: {
-		  memoizedState: {
-			  tag: 192,
-			  create: a        ,
-		  }
-	  },
-	},
-  }

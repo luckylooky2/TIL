@@ -1,6 +1,6 @@
 const React = require("react");
 const ReactDOMServer = require("react-dom/server");
-const { useState, useEffect } = React;
+const { useEffect } = React;
 
 function ChildComponent({ fruits }) {
   useEffect(() => {

@@ -52,6 +52,11 @@ const withSampleHOC3 = (Component) => {
     }
   }
 
+  // 같은 결과이다.
+  // const WithSampleHOC3 = () => {
+  //   return <Component />;
+  // };
+
   // Q1) 아래 코드가 없어도 고차 컴포넌트의 displayName은 WithSampleHOC3가 된다. why?
   // - 기본적으로 클래스 이름을 displayName으로 사용하기 때문이다. 하지만 아래를 보면 알 수 있듯이, 여기서 결정되는 것은 아니다.
   console.log(WithSampleHOC3.displayName, WithSampleHOC3.name); // undefined WithSampleHOC3
